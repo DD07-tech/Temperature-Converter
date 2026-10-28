@@ -3,6 +3,8 @@ name: Temperature Converter CI/CD Pipeline
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 permissions:
   contents: read
@@ -23,7 +25,7 @@ jobs:
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Automated Tests
         run: python -m pytest -v
@@ -31,6 +33,7 @@ jobs:
   build-and-push:
     name: Build & Push Artifact Stage
     needs: test
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -51,5 +54,5 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.deva0710 }}/temperature-converter:${{ github.sha }}
-            ${{ secrets.deva0710 }}/temperature-converter:latest
+            deva0710/temperature-converter:${{ github.sha }}
+            deva0710/temperature-converter:latest
